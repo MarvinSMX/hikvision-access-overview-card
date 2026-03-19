@@ -130,8 +130,12 @@ class HikvisionAccessOverviewCard extends HTMLElement {
           cursor: pointer;
           min-width: 0;
         }
-        .cell:hover .cam-wrap { filter: brightness(0.97); }
+        .cell:hover .cam-wrap > img,
+        .cell:hover .cam-wrap > .cam-placeholder {
+          filter: brightness(0.97);
+        }
         .cam-wrap {
+          position: relative;
           width: 100%;
           aspect-ratio: 16 / 9;
           border-radius: var(--ha-card-border-radius, 10px);
@@ -143,6 +147,7 @@ class HikvisionAccessOverviewCard extends HTMLElement {
           height: 100%;
           object-fit: cover;
           display: block;
+          transition: filter 0.15s ease;
         }
         .cam-placeholder {
           width: 100%;
@@ -152,6 +157,33 @@ class HikvisionAccessOverviewCard extends HTMLElement {
           justify-content: center;
           color: var(--secondary-text-color);
           --mdc-icon-size: clamp(22px, 12cqi, 36px);
+          transition: filter 0.15s ease;
+        }
+        .name-overlay {
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          z-index: 1;
+          padding: 8px 10px 6px;
+          font-size: clamp(0.7rem, 2.8cqi, 0.85rem);
+          font-weight: 500;
+          color: #fff;
+          text-align: center;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
+          background: linear-gradient(
+            transparent,
+            rgba(0, 0, 0, 0.72)
+          );
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.15s ease;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .cell:hover .name-overlay {
+          opacity: 1;
         }
       </style>
       <div class="cell" id="cell" data-cam="${camPicture ? camEntityId : ""}">
@@ -161,6 +193,7 @@ class HikvisionAccessOverviewCard extends HTMLElement {
               ? `<img id="cam-preview" alt="${labelEsc}">`
               : `<div class="cam-placeholder"><ha-icon icon="mdi:camera-off"></ha-icon></div>`
           }
+          <div class="name-overlay" role="tooltip">${labelEsc}</div>
         </div>
       </div>
     `;
