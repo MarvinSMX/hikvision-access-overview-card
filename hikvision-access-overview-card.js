@@ -1,6 +1,6 @@
 /**
- * Hikvision Access Overview Card — eine Zelle (nur Vorschau).
- * Mehrere Instanzen im Lovelace-Grid (type: grid). ha-card ohne BG/Rand.
+ * Hikvision Access Overview Card — nur Bild-Container (kein ha-card, kein Text).
+ * Mehrere Instanzen im Lovelace-Grid (type: grid).
  */
 
 class HikvisionAccessOverviewCard extends HTMLElement {
@@ -101,16 +101,10 @@ class HikvisionAccessOverviewCard extends HTMLElement {
 
     this.shadowRoot.innerHTML = `
       <style>
-        :host { display: block; }
-        ha-card {
+        :host {
+          display: block;
           container-type: inline-size;
-          padding: 0;
-          margin: 0;
-          background: transparent !important;
-          border: none !important;
-          box-shadow: none !important;
-          --ha-card-box-shadow: none;
-          --ha-card-background: transparent;
+          min-width: 0;
         }
         .cell {
           cursor: pointer;
@@ -140,17 +134,15 @@ class HikvisionAccessOverviewCard extends HTMLElement {
           --mdc-icon-size: clamp(22px, 12cqi, 36px);
         }
       </style>
-      <ha-card>
-        <div class="cell" id="cell" data-cam="${camPicture ? camEntityId : ""}">
-          <div class="cam-wrap">
-            ${
-              camPicture
-                ? `<img src="${camPicture}" alt="${labelEsc}">`
-                : `<div class="cam-placeholder"><ha-icon icon="mdi:camera-off"></ha-icon></div>`
-            }
-          </div>
+      <div class="cell" id="cell" data-cam="${camPicture ? camEntityId : ""}">
+        <div class="cam-wrap">
+          ${
+            camPicture
+              ? `<img src="${camPicture}" alt="${labelEsc}">`
+              : `<div class="cam-placeholder"><ha-icon icon="mdi:camera-off"></ha-icon></div>`
+          }
         </div>
-      </ha-card>
+      </div>
     `;
 
     const cell = this.shadowRoot.querySelector("#cell");
@@ -270,7 +262,7 @@ window.customCards = window.customCards || [];
   window.customCards.push({
     type: t,
     name: "Hikvision Access Zelle",
-    description: "Kamera-Vorschau ohne Rahmen (für Lovelace-Grid)",
+    description: "Nur Kamera-Bild (ohne ha-card, für Lovelace-Grid)",
     preview: true,
   });
 })();

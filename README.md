@@ -1,6 +1,6 @@
 # Hikvision Access Overview Card
 
-Eine **Zelle**: Snapshot + Name. Mehrere Karten im **Lovelace-Grid** (`type: grid`) anordnen.
+Eine **Zelle**: nur der **Bild-Container** (Snapshot), ohne `ha-card`-Wrapper und ohne sichtbaren Text. Mehrere Instanzen im **Lovelace-Grid** (`type: grid`).
 
 Integration: [hikvision-ha](https://github.com/MarvinSMX/hikvision-ha) · Einzelkarte: [hikvision-access-card](https://github.com/MarvinSMX/hikvision-access-card)
 
@@ -16,7 +16,7 @@ device: hintereingang_halle
 title: Hintereingang   # optional — nur img alt-Text, nicht sichtbar
 ```
 
-Die Karte hat **keinen eigenen Hintergrund/Rand** (nur das Bild mit abgerundeten Ecken).
+Es gibt **keinen Card-Rahmen** — nur die Vorschau mit abgerundeten Ecken (klickbar → More-Info Kamera).
 
 ## Grid-Beispiel
 
