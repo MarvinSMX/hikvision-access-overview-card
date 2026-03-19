@@ -1,31 +1,16 @@
-# Dashboard „Sicherheit / Zugriff“ — Tab pro Gebäude
-#
-# Benötigt:
-#   - Dieses Repo in HACS (Übersichtskarte) ODER manuelle Ressource
-#   - Optional: zweites Repo „hikvision-access-card“ für Einzelkarten pro Terminal
-
+# Mehrere Zellen im Standard-Grid
 title: Sicherheit / Zugriff
 views:
-  - title: Gebäude 441
-    path: zugriff-441
-    type: sections
-    sections:
+  - title: Kameras
+    path: kameras
+    cards:
       - type: grid
+        columns: 2
+        square: false
         cards:
           - type: custom:hikvision-access-overview-card
-            title: Gebäude 441 — Zugang
-            devices:
-              - device: hintereingang_halle
-                title: Hintereingang Halle
-
-  - title: Gebäude 442
-    path: zugriff-442
-    type: sections
-    sections:
-      - type: grid
-        cards:
+            device: hintereingang_halle
+            title: Hintereingang Halle
           - type: custom:hikvision-access-overview-card
-            title: Gebäude 442 — Zugang
-            devices:
-              - device: beispiel_terminal_442
-                title: Haupteingang
+            device: nebeneingang
+            title: Nebeneingang
