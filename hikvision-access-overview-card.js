@@ -78,6 +78,26 @@ class HikvisionAccessOverviewCard extends HTMLElement {
       .replace(/"/g, "&quot;");
   }
 
+  /**
+   * Snapshot-Vorschau-URL wie hikvision-access-card (entity_picture + Cache-Buster).
+   * Zusätzlich: hassUrl() für HA mit Unterpfad; &t= statt zweitem ? bei ?token=.
+   * src darf nicht mit & in innerHTML gesetzt werden — Browser parst & als Entity → kaputte URL.
+   */
+  _cameraPicturePreviewUrl(raw, ts) {
+    if (!raw) return null;
+    let base = String(raw).trim();
+    const isAbs = /^https?:\/\//i.test(base);
+    if (!isAbs && typeof this._hass?.hassUrl === "function") {
+      try {
+        base = this._hass.hassUrl(base);
+      } catch (_) {
+        /* relativ belassen */
+      }
+    }
+    const sep = base.includes("?") ? "&" : "?";
+    return `${base}${sep}t=${ts}`;
+  }
+
   _render() {
     if (!this._config || !this._hass) return;
 
@@ -97,10 +117,7 @@ class HikvisionAccessOverviewCard extends HTMLElement {
     const camTs = camState?.last_changed
       ? new Date(camState.last_changed).getTime()
       : Date.now();
-    // entity_picture ist z. B. ...?token=xxx — zweites ?t= wäre ungültig → 403
-    const camPicture = camPictureRaw
-      ? `${camPictureRaw}${camPictureRaw.includes("?") ? "&" : "?"}t=${camTs}`
-      : null;
+    const camPicture = this._cameraPicturePreviewUrl(camPictureRaw, camTs);
 
     this.shadowRoot.innerHTML = `
       <style>
@@ -141,19 +158,24 @@ class HikvisionAccessOverviewCard extends HTMLElement {
         <div class="cam-wrap">
           ${
             camPicture
-              ? `<img src="${camPicture}" alt="${labelEsc}">`
+              ? `<img id="cam-preview" alt="${labelEsc}">`
               : `<div class="cam-placeholder"><ha-icon icon="mdi:camera-off"></ha-icon></div>`
           }
         </div>
       </div>
     `;
 
+    const img = this.shadowRoot.querySelector("#cam-preview");
+    if (img && camPicture) {
+      img.src = camPicture;
+    }
+
     const cell = this.shadowRoot.querySelector("#cell");
     if (cell) {
-      cell.addEventListener("click", () => {
+      cell.onclick = () => {
         if (camPicture) this._moreInfo(camEntityId);
         else this._moreInfo(`sensor.${p}_geratestatus`);
-      });
+      };
     }
   }
 
