@@ -1,6 +1,6 @@
 /**
- * Hikvision Access Overview Card — eine Zelle (Vorschau + Name).
- * Mehrere Instanzen im Lovelace-Grid (type: grid) zusammensetzen.
+ * Hikvision Access Overview Card — eine Zelle (nur Vorschau).
+ * Mehrere Instanzen im Lovelace-Grid (type: grid). ha-card ohne BG/Rand.
  */
 
 class HikvisionAccessOverviewCard extends HTMLElement {
@@ -46,11 +46,15 @@ class HikvisionAccessOverviewCard extends HTMLElement {
 
   _fingerprint() {
     const p = this._config.device;
+    if (this._config.show_camera === false) {
+      return `nocam\x00${p}\x00${this._config.title || ""}`;
+    }
     const camId = `camera.${p}_letzter_snapshot`;
     const cam = this._hass?.states?.[camId];
-    return cam
+    const pic = cam
       ? `cam:${cam.last_changed}|${cam.attributes?.entity_picture ?? ""}`
       : "cam:none";
+    return `${pic}\x00${this._config.title || ""}`;
   }
 
   _s(entityId) {
@@ -83,20 +87,30 @@ class HikvisionAccessOverviewCard extends HTMLElement {
       p.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
     const labelEsc = this._escapeHtml(label);
 
-    const camId = `camera.${p}_letzter_snapshot`;
-    const camState = this._s(camId);
-    const camRaw = camState?.attributes?.entity_picture ?? null;
+    // Kamera / Snapshot — gleiche Logik wie hikvision-access-card (Snapshot-Zweig)
+    const camEntityId = `camera.${p}_letzter_snapshot`;
+    const camExists = camEntityId in (this._hass?.states ?? {});
+    const showCamera =
+      this._config.show_camera !== false && camExists;
+    const camState = showCamera ? this._s(camEntityId) : null;
+    const camPictureRaw = camState?.attributes?.entity_picture ?? null;
     const camTs = camState?.last_changed
       ? new Date(camState.last_changed).getTime()
       : Date.now();
-    const imgSrc = camRaw ? `${camRaw}?t=${camTs}` : null;
+    const camPicture = camPictureRaw ? `${camPictureRaw}?t=${camTs}` : null;
 
     this.shadowRoot.innerHTML = `
       <style>
         :host { display: block; }
         ha-card {
           container-type: inline-size;
-          padding: 8px;
+          padding: 0;
+          margin: 0;
+          background: transparent !important;
+          border: none !important;
+          box-shadow: none !important;
+          --ha-card-box-shadow: none;
+          --ha-card-background: transparent;
         }
         .cell {
           cursor: pointer;
@@ -125,27 +139,16 @@ class HikvisionAccessOverviewCard extends HTMLElement {
           color: var(--secondary-text-color);
           --mdc-icon-size: clamp(22px, 12cqi, 36px);
         }
-        .cell-name {
-          margin-top: 6px;
-          font-size: clamp(11px, 3.5cqi, 13px);
-          font-weight: 500;
-          color: var(--primary-text-color);
-          text-align: center;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
       </style>
       <ha-card>
-        <div class="cell" id="cell" data-cam="${imgSrc ? camId : ""}">
+        <div class="cell" id="cell" data-cam="${camPicture ? camEntityId : ""}">
           <div class="cam-wrap">
             ${
-              imgSrc
-                ? `<img src="${imgSrc}" alt="${labelEsc}" loading="lazy">`
+              camPicture
+                ? `<img src="${camPicture}" alt="${labelEsc}">`
                 : `<div class="cam-placeholder"><ha-icon icon="mdi:camera-off"></ha-icon></div>`
             }
           </div>
-          <div class="cell-name">${labelEsc}</div>
         </div>
       </ha-card>
     `;
@@ -153,7 +156,7 @@ class HikvisionAccessOverviewCard extends HTMLElement {
     const cell = this.shadowRoot.querySelector("#cell");
     if (cell) {
       cell.addEventListener("click", () => {
-        if (imgSrc) this._moreInfo(camId);
+        if (camPicture) this._moreInfo(camEntityId);
         else this._moreInfo(`sensor.${p}_geratestatus`);
       });
     }
@@ -232,10 +235,10 @@ class HikvisionAccessOverviewCardEditor extends HTMLElement {
             placeholder="hintereingang_halle">
         </div>
         <div class="field">
-          <label>Name unter dem Bild (optional)</label>
+          <label>Bild-Alt-Text (optional)</label>
           <input id="title" type="text" value="${this._config.title || ""}"
-            placeholder="Leer = aus Gerätenamen ableiten">
-          <div class="hint">Kamera: camera.&lt;prefix&gt;_letzter_snapshot</div>
+            placeholder="Leer = aus Prefix ableiten">
+          <div class="hint">Nur für Barrierefreiheit (alt), nicht sichtbar.</div>
         </div>
       </div>
     `;
@@ -267,7 +270,7 @@ window.customCards = window.customCards || [];
   window.customCards.push({
     type: t,
     name: "Hikvision Access Zelle",
-    description: "Eine Kamera-Vorschau + Name (für Lovelace-Grid)",
+    description: "Kamera-Vorschau ohne Rahmen (für Lovelace-Grid)",
     preview: true,
   });
 })();

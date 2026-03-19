@@ -13,8 +13,10 @@ Frontend-Repo hinzufügen → installieren → HA neu laden → Browser Strg+Shi
 ```yaml
 type: custom:hikvision-access-overview-card
 device: hintereingang_halle
-title: Hintereingang   # optional
+title: Hintereingang   # optional — nur img alt-Text, nicht sichtbar
 ```
+
+Die Karte hat **keinen eigenen Hintergrund/Rand** (nur das Bild mit abgerundeten Ecken).
 
 ## Grid-Beispiel
 
@@ -25,10 +27,8 @@ square: false
 cards:
   - type: custom:hikvision-access-overview-card
     device: terminal_a
-    title: Eingang A
   - type: custom:hikvision-access-overview-card
     device: terminal_b
-    title: Eingang B
 ```
 
 *(Altes `devices:`-Array wird nur noch das erste Element gelesen — bitte auf `device` umstellen.)*
