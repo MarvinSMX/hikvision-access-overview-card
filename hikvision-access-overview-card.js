@@ -97,7 +97,10 @@ class HikvisionAccessOverviewCard extends HTMLElement {
     const camTs = camState?.last_changed
       ? new Date(camState.last_changed).getTime()
       : Date.now();
-    const camPicture = camPictureRaw ? `${camPictureRaw}?t=${camTs}` : null;
+    // entity_picture ist z. B. ...?token=xxx — zweites ?t= wäre ungültig → 403
+    const camPicture = camPictureRaw
+      ? `${camPictureRaw}${camPictureRaw.includes("?") ? "&" : "?"}t=${camTs}`
+      : null;
 
     this.shadowRoot.innerHTML = `
       <style>
