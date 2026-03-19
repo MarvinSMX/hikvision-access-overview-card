@@ -1,6 +1,6 @@
 # Hikvision Access Overview Card
 
-Eigenständiges **HACS-Frontend-Repository** — Mehrfach-Übersicht mehrerer [Hikvision Face Terminals](https://github.com/MarvinSMX/hikvision-ha) auf einer Karte (z. B. ein Tab pro Gebäude im Dashboard „Sicherheit / Zugriff“).
+Eigenständiges **HACS-Frontend-Repository** — **CCTV-artiges Raster** mit **Snapshot-Vorschau** pro Terminal ([Hikvision Face Terminals](https://github.com/MarvinSMX/hikvision-ha)), z. B. ein Tab pro Gebäude im Dashboard „Sicherheit / Zugriff“.
 
 Die **Einzelkarte** pro Terminal liegt in einem **separaten Repo**:  
 [hikvision-access-card](https://github.com/MarvinSMX/hikvision-access-card) (`custom:hikvision-access-card`).
@@ -29,18 +29,26 @@ Danach Browser **hart neu laden** (Strg+Shift+R).
 
 ```yaml
 type: custom:hikvision-access-overview-card
-title: Gebäude 442 — Zugang   # optional
+title: Gebäude 442 — Überwachung   # optional
+columns: 2                        # optional, 1–4 (auf schmalen Screens automatisch 1)
 devices:
   - device: hintereingang_halle
     title: Hintereingang Halle
-  - nebeneingang               # nur Prefix, Titel aus Prefix abgeleitet
+  - nebeneingang
 ```
+
+Die Vorschau nutzt `camera.{prefix}_letzter_snapshot` (`entity_picture`). Ohne Kamera-Entity erscheint ein Platzhalter **Kein Bild**.
+
+**Darstellung**
+
+- Raster 16:9, dezentes Scanline-Overlay, **LIVE**-Badge (rot = verbunden)
+- Unten: Name, Tür-Icon, Zugang (OK/Nein), Uhrzeit letztes Event, Kurzinfo Person/Event
 
 **Interaktion**
 
-- Klick auf Zeile → More-Info **Gerätestatus**
-- Doppelklick auf Zeile → Verlauf (History)
-- Schloss → Zugangssperre ein/aus
+- **Klick** auf Kachel → More-Info **Kamera** (falls vorhanden), sonst **Gerätestatus**
+- **Doppelklick** → Verlauf (History)
+- **Schloss** (oben rechts) → Zugangssperre ein/aus
 
 ## Dashboard-Beispiel
 
